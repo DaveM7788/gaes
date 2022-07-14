@@ -17,6 +17,13 @@ Pass in the file path and then the option to encrypt (e) or decrypt (d). For exa
 $ ./gaes somefile.txt e
 ```
 
+By default, decryption will not create a new file. It will just print the content. To create
+a new file pass in "f"
+
+```
+$ ./gaes somefile.txtenc d f
+```
+
 # Reference
 
 https://levelup.gitconnected.com/a-short-guide-to-encryption-using-go-da97c928259f

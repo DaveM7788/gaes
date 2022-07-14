@@ -32,7 +32,11 @@ func main() {
 		}
 	} else if encryptOrDe == "d" || encryptOrDe == "-d" ||
 		encryptOrDe == "decrypt" || encryptOrDe == "--decrypt" {
-		decryptFile(filePath, actual)
+		if len(argsWithoutProg) > 2 && argsWithoutProg[2] == "f" {
+			decryptFile(filePath, actual, true)
+		} else {
+			decryptFile(filePath, actual, false)
+		}
 	} else {
 		log.Fatal("Encrypt or decrypt option was incorrect")
 	}
@@ -107,7 +111,7 @@ func encryptFile(filepath string, key []byte) {
 	outfile.Write(iv)
 }
 
-func decryptFile(filepath string, key []byte) {
+func decryptFile(filepath string, key []byte, createDecFile bool) {
 	infile, err := os.Open(filepath)
 	if err != nil {
 		log.Fatal(err)
@@ -131,10 +135,13 @@ func decryptFile(filepath string, key []byte) {
 		log.Fatal(err)
 	}
 
-	handleName := handleOutFileName(filepath)
-	outfile, err := os.OpenFile(handleName, os.O_RDWR|os.O_CREATE, 0777)
-	if err != nil {
-		log.Fatal(err)
+	var outfile *os.File
+	if createDecFile {
+		handleName := handleOutFileName(filepath)
+		outfile, err = os.OpenFile(handleName, os.O_RDWR|os.O_CREATE, 0777)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	defer outfile.Close()
 
@@ -150,7 +157,11 @@ func decryptFile(filepath string, key []byte) {
 			}
 			msgLen -= int64(n)
 			stream.XORKeyStream(buf, buf[:n])
-			outfile.Write(buf[:n])
+			if createDecFile {
+				outfile.Write(buf[:n])
+			} else {
+				fmt.Println(string(buf[:n]))
+			}
 		}
 
 		if err == io.EOF {
