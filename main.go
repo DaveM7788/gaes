@@ -30,11 +30,20 @@ func main() {
 		} else {
 			log.Fatal("Password inputs did not match")
 		}
+		if len(argsWithoutProg) > 2 && argsWithoutProg[2] == "d" {
+			// delete plain text file after encryption
+			deleteAfterEncrypt(filePath)
+			fmt.Println("Cipher text created (" + filePath + "enc). Plain text was deleted after encryption")
+		} else {
+			fmt.Println("Cipher text created (" + filePath + "enc). Plain text has NOT been deleted")
+		}
 	} else if encryptOrDe == "d" || encryptOrDe == "-d" ||
 		encryptOrDe == "decrypt" || encryptOrDe == "--decrypt" {
 		if len(argsWithoutProg) > 2 && argsWithoutProg[2] == "f" {
+			// create a new file of plain text after decryption
 			decryptFile(filePath, actual, true)
 		} else {
+			// text will only write to standard out
 			decryptFile(filePath, actual, false)
 		}
 	} else {
@@ -109,6 +118,13 @@ func encryptFile(filepath string, key []byte) {
 	}
 	// Append the IV
 	outfile.Write(iv)
+}
+
+func deleteAfterEncrypt(filepath string) {
+	err := os.Remove(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func decryptFile(filepath string, key []byte, createDecFile bool) {
